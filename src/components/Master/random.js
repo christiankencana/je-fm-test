@@ -5,9 +5,9 @@ import Header from '../Header/Header';
 
 const initialModalData = {
   ruas_name: '',
-  unit_id: '',
-  photo: null,
-  file: null,
+  unit_id: '', // Changed to unit_id to match the controller
+  photo: null, // Changed to photo to match the controller
+  file: null, // Changed to file to match the controller
   long: '',
   km_awal: '',
   km_akhir: '',
@@ -103,6 +103,13 @@ const Master = () => {
     }
   };
 
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setModalData({
+      ...modalData,
+      [name]: files ? files[0] : value,
+    });
+  };
 
   return (
     <div>
@@ -144,8 +151,8 @@ const Master = () => {
                 <td className="border px-4 py-2">{item.km_awal}</td>
                 <td className="border px-4 py-2">{item.km_akhir}</td>
                 <td className="border px-4 py-2">{item.status ? 'Active' : 'Inactive'}</td>
-                <td className="border px-4 py-2">
-                  <button onClick={() => handleShowModal(item)} className="text-blue-500 mr-2">
+                <td className="border px-4 py-2 flex space-x-2">
+                  <button onClick={() => handleShowModal(item)} className="text-blue-500">
                     <FaEdit />
                   </button>
                   <button onClick={() => handleDelete(item.id)} className="text-red-500">
@@ -157,97 +164,111 @@ const Master = () => {
           </tbody>
         </table>
       </div>
+
       {showModal && (
-        <Modal
-          modalData={modalData}
-          setModalData={setModalData}
-          handleCloseModal={handleCloseModal}
-          handleSave={handleSave}
-          units={units}
-        />
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-4 rounded w-1/2">
+            <h2 className="text-2xl mb-4">{isEdit ? 'Edit Ruas' : 'Add New Ruas'}</h2>
+            <div className="mb-4">
+              <label className="block mb-2">Ruas Name</label>
+              <input
+                type="text"
+                name="ruas_name"
+                value={modalData.ruas_name}
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Unit Kerja</label>
+              <select
+                name="unit_id"
+                value={modalData.unit_id}
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              >
+                <option value="">Select Unit</option>
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.unit}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Longitude</label>
+              <input
+                type="text"
+                name="long"
+                value={modalData.long}
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">KM Awal</label>
+              <input
+                type="text"
+                name="km_awal"
+                value={modalData.km_awal}
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">KM Akhir</label>
+              <input
+                type="text"
+                name="km_akhir"
+                value={modalData.km_akhir}
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Status</label>
+              <select
+                name="status"
+                value={modalData.status}
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              >
+                <option value="">Select Status</option>
+                <option value="1">Active</option>
+                <option value="0">Inactive</option>
+              </select>
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Photo</label>
+              <input
+                type="file"
+                name="photo"
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block mb-2">Document</label>
+              <input
+                type="file"
+                name="file"
+                onChange={handleChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              />
+            </div>
+            <div className="flex justify-end">
+              <button onClick={handleCloseModal} className="bg-gray-500 text-white px-4 py-2 rounded mr-2">
+                Cancel
+              </button>
+              <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
 };
-
-const Modal = ({ modalData, setModalData, handleCloseModal, handleSave, units }) => {
-  const handleChange = (e) => {
-    const { name, value, type, files } = e.target;
-    if (type === 'file') {
-      setModalData((prevData) => ({ ...prevData, [name]: files[0] }));
-    } else {
-      setModalData((prevData) => ({ ...prevData, [name]: value }));
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-4 rounded w-full max-w-2xl"> {/* Ubah ukuran form menjadi lebih responsif */}
-        <h2 className="text-xl mb-4">{modalData.id ? 'Edit Data' : 'Add New Data'}</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <InputField label="Ruas Name" name="ruas_name" value={modalData.ruas_name} onChange={handleChange} />
-          <SelectField label="Unit Kerja" name="unit_id" value={modalData.unit_id} options={units} onChange={handleChange} />
-          <FileField label="Foto URL" name="photo" onChange={handleChange} />
-          <FileField label="Doc URL" name="file" onChange={handleChange} />
-          <InputField label="Longitude" name="long" value={modalData.long} onChange={handleChange} />
-          <InputField label="KM Awal" name="km_awal" value={modalData.km_awal} onChange={handleChange} />
-          <InputField label="KM Akhir" name="km_akhir" value={modalData.km_akhir} onChange={handleChange} />
-          <SelectField
-            label="Status"
-            name="status"
-            value={modalData.status}
-            options={[
-              { id: 'active', unit: 'Active' },
-              { id: 'inactive', unit: 'Inactive' },
-            ]}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="flex justify-end mt-4">
-          <button onClick={handleCloseModal} className="bg-gray-500 text-white px-4 py-2 rounded mr-2">
-            Cancel
-          </button>
-          <button onClick={handleSave} className="bg-blue-500 text-white px-4 py-2 rounded">
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const InputField = ({ label, name, value, onChange }) => (
-  <div className="mb-4">
-    <label className="block mb-2">{label}</label>
-    <input
-      type="text"
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="p-2 border border-gray-300 rounded w-full"
-    />
-  </div>
-);
-
-const SelectField = ({ label, name, value, options, onChange }) => (
-  <div className="mb-4">
-    <label className="block mb-2">{label}</label>
-    <select name={name} value={value} onChange={onChange} className="p-2 border border-gray-300 rounded w-full">
-      <option value="">Select {label}</option>
-      {options.map((option) => (
-        <option key={option.id} value={option.id}>
-          {option.unit}
-        </option>
-      ))}
-    </select>
-  </div>
-);
-
-const FileField = ({ label, name, onChange }) => (
-  <div className="mb-4">
-    <label className="block mb-2">{label}</label>
-    <input type="file" name={name} onChange={onChange} className="p-2 border border-gray-300 rounded w-full" />
-  </div>
-);
 
 export default Master;
