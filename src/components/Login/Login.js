@@ -1,25 +1,28 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-const Login = ({ navigateTo }) => {
+const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('https://your-laravel-api.com/api/login', {
+      const response = await axios.post('http://127.0.0.1:8000/api/login', {
         username,
-        password
+        password,
       });
 
-      if (response.data.success) {
-        // Simpan token ke localStorage atau state management
-        localStorage.setItem('token', response.data.token);
-        navigateTo('dashboard');
+      if (response.data.status) {
+        // Simpan token ke localStorage
+        localStorage.setItem('token', response.data.access_token);
+        localStorage.setItem('isAuthenticated', 'true');
+        navigate('/dashboard');
       } else {
         setError('Login failed: ' + response.data.message);
       }
