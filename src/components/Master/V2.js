@@ -127,29 +127,23 @@ const Master = () => {
       sortable: true,
     },
     {
-      name: 'Lokasi',
-      selector: row => row.km_awal + ' s/d ' + row.km_akhir,
+      name: 'Unit Kerja',
+      selector: row => units.find((u) => u.id === row.unit_id)?.unit || 'N/A',
       sortable: true,
     },
     {
-      name: 'Photo',
-      cell: row => (
-        <div>
-          {row.photo_url && <img src={`${row.photo_url}`} alt="Ruas" className="h-12 w-24" />}
-        </div>
-      ),
+      name: 'Longitude',
+      selector: row => row.long,
+      sortable: true,
     },
     {
-      name: 'Document',
-      cell: row => (
-        <div>
-           {row.doc_url && <a className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full' href={`${row.doc_url}`} download>Download File</a>}
-        </div>
-      ),
+      name: 'KM Awal',
+      selector: row => row.km_awal,
+      sortable: true,
     },
     {
-      name: 'Unit Kerja',
-      selector: row => units.find((u) => u.id === row.unit_id)?.unit || 'N/A',
+      name: 'KM Akhir',
+      selector: row => row.km_akhir,
       sortable: true,
     },
     {
@@ -243,12 +237,12 @@ const Modal = ({ modalData, setModalData, handleCloseModal, handleSave, units })
         <h2 className="text-xl mb-4">{modalData.id ? 'Edit Data' : 'Add New Data'}</h2>
         <div className="grid grid-cols-2 gap-4">
           <InputField label="Ruas Name" name="ruas_name" value={modalData.ruas_name} onChange={handleChange} />
-          <InputField label="Longitude" name="long" value={modalData.long} onChange={handleChange} />
           <SelectField label="Unit Kerja" name="unit_id" value={modalData.unit_id} options={units} onChange={handleChange} />
-          <InputField label="KM Awal" name="km_awal" value={modalData.km_awal} onChange={handleChange} />
           <FileField label="Foto URL" name="photo" onChange={handleChange} />
-          <InputField label="KM Akhir" name="km_akhir" value={modalData.km_akhir} onChange={handleChange} />
           <FileField label="Doc URL" name="file" onChange={handleChange} />
+          <InputField label="Longitude" name="long" value={modalData.long} onChange={handleChange} />
+          <InputField label="KM Awal" name="km_awal" value={modalData.km_awal} onChange={handleChange} />
+          <InputField label="KM Akhir" name="km_akhir" value={modalData.km_akhir} onChange={handleChange} />
           <SelectField
             label="Status"
             name="status"
@@ -317,16 +311,24 @@ const ViewModal = ({ viewData, handleCloseViewModal, units }) => (
           <p>{viewData.ruas_name}</p>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Longitude</label>
-          <p>{viewData.long}</p>
-        </div>
-        <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">Unit Kerja</label>
           <p>{units.find((u) => u.id === viewData.unit_id)?.unit || 'N/A'}</p>
         </div>
         <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">Longitude</label>
+          <p>{viewData.long}</p>
+        </div>
+        <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">KM Awal</label>
           <p>{viewData.km_awal}</p>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">KM Akhir</label>
+          <p>{viewData.km_akhir}</p>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">Status</label>
+          <p>{viewData.status === '0' ? 'Inactive' : 'Active'}</p>
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">Photo</label>
@@ -334,17 +336,9 @@ const ViewModal = ({ viewData, handleCloseViewModal, units }) => (
           {viewData.photo_url && <img src={`${viewData.photo_url}`} alt="Ruas" className="h-24 w-48" />}
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">KM Akhir</label>
-          <p>{viewData.km_akhir}</p>
-        </div>
-        <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">File</label>
           {/* <p>{viewData.doc_url}</p> */}
-          {viewData.doc_url && <a className='text-blue-500' href={`${viewData.doc_url}`} download>Download File</a>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Status</label>
-          <p>{viewData.status === '0' ? 'Inactive' : 'Active'}</p>
+          {viewData.doc_url && <a href={`${viewData.doc_url}`} download>Download File</a>}
         </div>
       </div>
       <div className="flex justify-end">

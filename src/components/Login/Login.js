@@ -13,7 +13,7 @@ const Login = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post('http://127.0.0.1:8001/api/login', {
+      const response = await axios.post('http://127.0.0.1:8000/api/login', {
         username,
         password,
       });

@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import DataTable from 'react-data-table-component';
-
 import axios from 'axios';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 import Header from '../Header/Header';
@@ -120,61 +118,6 @@ const Master = () => {
     }
   };
 
-  const columns = [
-    {
-      name: 'Ruas Name',
-      selector: row => row.ruas_name,
-      sortable: true,
-    },
-    {
-      name: 'Lokasi',
-      selector: row => row.km_awal + ' s/d ' + row.km_akhir,
-      sortable: true,
-    },
-    {
-      name: 'Photo',
-      cell: row => (
-        <div>
-          {row.photo_url && <img src={`${row.photo_url}`} alt="Ruas" className="h-12 w-24" />}
-        </div>
-      ),
-    },
-    {
-      name: 'Document',
-      cell: row => (
-        <div>
-           {row.doc_url && <a className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full' href={`${row.doc_url}`} download>Download File</a>}
-        </div>
-      ),
-    },
-    {
-      name: 'Unit Kerja',
-      selector: row => units.find((u) => u.id === row.unit_id)?.unit || 'N/A',
-      sortable: true,
-    },
-    {
-      name: 'Status',
-      selector: row => row.status === '0' ? 'Inactive' : 'Active',
-      sortable: true,
-    },
-    {
-      name: 'Actions',
-      cell: row => (
-        <div>
-          <button onClick={() => handleShowViewModal(row)} className="text-green-500 mr-2">
-            <FaEye />
-          </button>
-          <button onClick={() => handleShowModal(row)} className="text-blue-500 mr-2">
-            <FaEdit />
-          </button>
-          <button onClick={() => handleDelete(row.id)} className="text-red-500">
-            <FaTrash />
-          </button>
-        </div>
-      ),
-    },
-  ];
-
   return (
     <div>
       <Header />
@@ -192,20 +135,48 @@ const Master = () => {
           onChange={handleSearch}
           className="p-2 border border-gray-300 rounded mb-4 w-full"
         />
-        <DataTable
-          columns={columns}
-          data={data.filter(item => 
-            item.ruas_name.toLowerCase().includes(search.toLowerCase()) ||
-            (units.find(u => u.id === item.unit_id)?.unit || 'N/A').toLowerCase().includes(search.toLowerCase()) ||
-            item.long.toLowerCase().includes(search.toLowerCase()) ||
-            item.km_awal.toLowerCase().includes(search.toLowerCase()) ||
-            item.km_akhir.toLowerCase().includes(search.toLowerCase()) ||
-            (item.status === '0' ? 'Inactive' : 'Active').toLowerCase().includes(search.toLowerCase())
-          )}
-          pagination
-          highlightOnHover
-          pointerOnHover
-        />
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="border px-4 py-2">Ruas Name</th>
+              <th className="border px-4 py-2">Unit Kerja</th>
+              {/* <th className="border px-4 py-2">Photo</th>
+              <th className="border px-4 py-2">File</th> */}
+              <th className="border px-4 py-2">Longitude</th>
+              <th className="border px-4 py-2">KM Awal</th>
+              <th className="border px-4 py-2">KM Akhir</th>
+              <th className="border px-4 py-2">Status</th>
+              <th className="border px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.filter((item) => item.status === "1" && item.ruas_name.toLowerCase().includes(search.toLowerCase())).map((item) => (
+              <tr key={item.id}>
+                <td className="border px-4 py-2">{item.ruas_name}</td>
+                <td className="border px-4 py-2">
+                  {units.find((u) => u.id === item.unit_id)?.unit || 'N/A'}
+                </td>
+                {/* <td className="border px-4 py-2">{item.photo_url}</td>
+                <td className="border px-4 py-2">{item.doc_url}</td> */}
+                <td className="border px-4 py-2">{item.long}</td>
+                <td className="border px-4 py-2">{item.km_awal}</td>
+                <td className="border px-4 py-2">{item.km_akhir}</td>
+                <td className="border px-4 py-2">{item.status ? 'Active' : 'Inactive'}</td>
+                <td className="border px-4 py-2">
+                  <button onClick={() => handleShowViewModal(item)} className="text-green-500 mr-2">
+                    <FaEye />
+                  </button>
+                  <button onClick={() => handleShowModal(item)} className="text-blue-500 mr-2">
+                    <FaEdit />
+                  </button>
+                  <button onClick={() => handleDelete(item.id)} className="text-red-500">
+                    <FaTrash />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
       {showModal && (
         <Modal
@@ -243,12 +214,12 @@ const Modal = ({ modalData, setModalData, handleCloseModal, handleSave, units })
         <h2 className="text-xl mb-4">{modalData.id ? 'Edit Data' : 'Add New Data'}</h2>
         <div className="grid grid-cols-2 gap-4">
           <InputField label="Ruas Name" name="ruas_name" value={modalData.ruas_name} onChange={handleChange} />
-          <InputField label="Longitude" name="long" value={modalData.long} onChange={handleChange} />
           <SelectField label="Unit Kerja" name="unit_id" value={modalData.unit_id} options={units} onChange={handleChange} />
-          <InputField label="KM Awal" name="km_awal" value={modalData.km_awal} onChange={handleChange} />
           <FileField label="Foto URL" name="photo" onChange={handleChange} />
-          <InputField label="KM Akhir" name="km_akhir" value={modalData.km_akhir} onChange={handleChange} />
           <FileField label="Doc URL" name="file" onChange={handleChange} />
+          <InputField label="Longitude" name="long" value={modalData.long} onChange={handleChange} />
+          <InputField label="KM Awal" name="km_awal" value={modalData.km_awal} onChange={handleChange} />
+          <InputField label="KM Akhir" name="km_akhir" value={modalData.km_akhir} onChange={handleChange} />
           <SelectField
             label="Status"
             name="status"
@@ -317,16 +288,24 @@ const ViewModal = ({ viewData, handleCloseViewModal, units }) => (
           <p>{viewData.ruas_name}</p>
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Longitude</label>
-          <p>{viewData.long}</p>
-        </div>
-        <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">Unit Kerja</label>
           <p>{units.find((u) => u.id === viewData.unit_id)?.unit || 'N/A'}</p>
         </div>
         <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">Longitude</label>
+          <p>{viewData.long}</p>
+        </div>
+        <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">KM Awal</label>
           <p>{viewData.km_awal}</p>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">KM Akhir</label>
+          <p>{viewData.km_akhir}</p>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">Status</label>
+          <p>{viewData.status ? 'Active' : 'Inactive'}</p>
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">Photo</label>
@@ -334,17 +313,9 @@ const ViewModal = ({ viewData, handleCloseViewModal, units }) => (
           {viewData.photo_url && <img src={`${viewData.photo_url}`} alt="Ruas" className="h-24 w-48" />}
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">KM Akhir</label>
-          <p>{viewData.km_akhir}</p>
-        </div>
-        <div className="mb-4">
           <label className="block text-gray-700 text-sm font-bold mb-2">File</label>
           {/* <p>{viewData.doc_url}</p> */}
-          {viewData.doc_url && <a className='text-blue-500' href={`${viewData.doc_url}`} download>Download File</a>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">Status</label>
-          <p>{viewData.status === '0' ? 'Inactive' : 'Active'}</p>
+          {viewData.doc_url && <a href={`${viewData.doc_url}`} download>Download File</a>}
         </div>
       </div>
       <div className="flex justify-end">
