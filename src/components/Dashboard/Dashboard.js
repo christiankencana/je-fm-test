@@ -72,11 +72,27 @@ const Dashboard = () => {
     responsive: true,
     maintainAspectRatio: false,
   };
+  useEffect(() => {
+    fetchUnits();
+  }, []);
+
+  const fetchUnits = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://127.0.0.1:8000/api/unit', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUnits(response.data.data || []); // Ensure units is an array
+    } catch (error) {
+      console.error(error);
+      setUnits([]); // Fallback to an empty array
+    }
+  };
 
   useEffect(() => {
     fetchBarData();
     fetchPieData();
-  }, []);
+  }, [fetchUnits]);
 
   const fetchBarData = async () => {
     try {
@@ -87,8 +103,17 @@ const Dashboard = () => {
       
       const data = response.data.data;
 
-      const labels = data.map(item => item.ruas_name);
-      const values = data.map(item => item.unit_id);
+      const unitCounts = data.reduce((acc, item) => {
+        const unitName = units.find((u) => u.id === item.unit_id)?.unit || 'N/A';
+        if (!acc[unitName]) {
+          acc[unitName] = 0;
+        }
+        acc[unitName]++;
+        return acc;
+      }, {});
+
+      const labels = Object.keys(unitCounts);
+      const values = Object.values(unitCounts);
 
       setBarData({
         labels: labels,
@@ -118,8 +143,17 @@ const Dashboard = () => {
 
       const data = response.data.data;
 
-      const labels = data.map(item => item.ruas_name);
-      const values = data.map(item => item.unit_id);
+      const unitCounts = data.reduce((acc, item) => {
+        const unitName = units.find((u) => u.id === item.unit_id)?.unit || 'N/A';
+        if (!acc[unitName]) {
+          acc[unitName] = 0;
+        }
+        acc[unitName]++;
+        return acc;
+      }, {});
+
+      const labels = Object.keys(unitCounts);
+      const values = Object.values(unitCounts);
 
       setPieData({
         labels: labels,
@@ -174,7 +208,6 @@ const initialModalData = {
 
   useEffect(() => {
     fetchData();
-    fetchUnits();
   }, []);
 
   const fetchData = async () => {
@@ -187,19 +220,6 @@ const initialModalData = {
     } catch (error) {
       console.error(error);
       setData([]); // Fallback to an empty array
-    }
-  };
-
-  const fetchUnits = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/api/unit', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUnits(response.data.data || []); // Ensure units is an array
-    } catch (error) {
-      console.error(error);
-      setUnits([]); // Fallback to an empty array
     }
   };
 
